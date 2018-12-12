@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">ChatApp</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="send_button_label">Send</string>
+    <string name="image_message">Image in message field</string>
+</resources>
+
