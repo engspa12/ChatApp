@@ -36,8 +36,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -65,9 +63,8 @@ public class MainActivity extends AppCompatActivity {
     public static final int RC_SIGN_IN = 1;
     private static final int RC_PHOTO_PICKER=2;
 
-    //private ListView mMessageListView;
     private RecyclerView mMessagesRecyclerView;
-    //private MessageAdapter mMessageAdapter;
+
     private DividerItemDecoration mDividerItemDecoration;
 
     private ProgressBar mProgressBar;
@@ -77,13 +74,10 @@ public class MainActivity extends AppCompatActivity {
 
     private String mUsername;
 
-
-
     private FirebaseRecyclerAdapter adapter;
 
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mMessagesDatabaseReference;
-    private ChildEventListener mChildEventListener;
 
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
@@ -98,26 +92,22 @@ public class MainActivity extends AppCompatActivity {
 
         mUsername = ANONYMOUS;
 
+        //Firebase initialization
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseStorage = FirebaseStorage.getInstance();
         mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
 
+        //Firebase Database and Storage endpoint references
         mMessagesDatabaseReference = mFirebaseDatabase.getReference().child("messages");
         mChatPhotosStorageReference = mFirebaseStorage.getReference().child("chat_photos");
 
-        // Initialize references to views
+        //Initialize references to views
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-        //mMessageListView = (ListView) findViewById(R.id.messageListView);
         mMessagesRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         mPhotoPickerButton = (ImageButton) findViewById(R.id.photoPickerButton);
         mMessageEditText = (EditText) findViewById(R.id.messageEditText);
         mSendButton = (Button) findViewById(R.id.sendButton);
-
-        // Initialize message ListView and its adapter
-        //List<FriendlyMessage> friendlyMessages = new ArrayList<>();
-        //mMessageAdapter = new MessageAdapter(this, R.layout.item_message, friendlyMessages);
-        //mMessageListView.setAdapter(mMessageAdapter);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mMessagesRecyclerView.setLayoutManager(layoutManager);
@@ -128,11 +118,10 @@ public class MainActivity extends AppCompatActivity {
         mDividerItemDecoration.setDrawable(getResources().getDrawable(R.drawable.divider));
         mMessagesRecyclerView.addItemDecoration(mDividerItemDecoration);
 
-
-        // Initialize progress bar
+        //Initialize progress bar
         mProgressBar.setVisibility(ProgressBar.INVISIBLE);
 
-        // ImagePickerButton shows an image picker to upload a image for a message
+        //Show an image picker to upload an image so it can be used in the messages section
         mPhotoPickerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -144,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Enable Send button when there's text to send
+        //Enable send button when there's text ready to send
         mMessageEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -165,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
         });
         mMessageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_MSG_LENGTH_LIMIT)});
 
-        // Send button sends a message and clears the EditText
+        //Send a message using the send button and clear the EditText
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -174,29 +163,27 @@ public class MainActivity extends AppCompatActivity {
                 String currentDateAndTime = sdf.format(new Date());
                 ChatMessage friendlyMessage = new ChatMessage(mMessageEditText.getText().toString(), mUsername, null, currentDateAndTime);
                 mMessagesDatabaseReference.push().setValue(friendlyMessage);
-                // Clear input box
+                //Clear input box
                 mMessageEditText.setText("");
             }
         });
 
 
-        // Check sign-in state
+        //Check sign-in state
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     onSignedInInitialize(user.getDisplayName());
-                    // User is signed in
+                    //User is signed in
                     Toast.makeText(MainActivity.this, "You're now signed in. Welcome to the Chat App.", Toast.LENGTH_SHORT).show();
                 } else {
                     onSignedOutCleanup();
-                    // User is signed out
+                    //User is signed out
                     List<AuthUI.IdpConfig> providers = Arrays.asList(
                             new AuthUI.IdpConfig.EmailBuilder().build(),
                             new AuthUI.IdpConfig.GoogleBuilder().build()
-                            //new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
-                            //new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()
                     );
                     startActivityForResult(
                             AuthUI.getInstance()
@@ -212,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
+        //Remote Config
         FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
                 .setDeveloperModeEnabled(BuildConfig.DEBUG)
                 .build();
@@ -248,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
                         throw task.getException();
                     }
 
-                    // Continue with the task to get the download URL
+                    //Continue with the task to get the download URL
                     return photoRef.getDownloadUrl();
                 }
             }).addOnCompleteListener(new OnCompleteListener<Uri>() {
@@ -262,24 +250,13 @@ public class MainActivity extends AppCompatActivity {
                                 new ChatMessage(null, mUsername, downloadUri.toString(), currentDateAndTime);
                         mMessagesDatabaseReference.push().setValue(friendlyMessage);
                     } else {
-                        // Handle failures
+                        //Handle failures
                         // ...
                         Log.e(TAG,"An error occurred during the getDownloadUrl process");
                     }
                 }
             });
 
-//            photoRef.putFile(selectedImageUri).addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
-//                @Override
-//                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-//                    Uri downloadUrl = taskSnapshot.getDownloadUrl();
-//                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd - h:mm a");
-//                    String currentDateAndTime = sdf.format(new Date());
-//                    FriendlyMessage friendlyMessage =
-//                            new FriendlyMessage(null, mUsername, downloadUrl.toString(), currentDateAndTime);
-//                    mMessagesDatabaseReference.push().setValue(friendlyMessage);
-//                }
-//            });
         }
     }
 
@@ -311,8 +288,6 @@ public class MainActivity extends AppCompatActivity {
         if (mAuthStateListener != null) {
             mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
         }
-        detachDatabaseReadListener();
-        //mMessageAdapter.clear();
     }
 
 
@@ -337,47 +312,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void onSignedInInitialize(String username){
         mUsername = username;
-        attachDatabaseReadListener();
+        setFirebaseUIConfig();
 
     }
 
     private void onSignedOutCleanup(){
         mUsername = ANONYMOUS;
-        //mMessageAdapter.clear();
-        detachDatabaseReadListener();
     }
 
-    private void attachDatabaseReadListener() {
-        if (mChildEventListener == null) {
-            mChildEventListener = new ChildEventListener() {
-                @Override
-                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                    ChatMessage friendlyMessage = dataSnapshot.getValue(ChatMessage.class);
-                    //mMessageAdapter.add(friendlyMessage);
-                }
-
-                @Override
-                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-                }
-
-                @Override
-                public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                }
-
-                @Override
-                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            };
-            mMessagesDatabaseReference.addChildEventListener(mChildEventListener);
-        }
+    private void setFirebaseUIConfig() {
 
         FirebaseRecyclerOptions<ChatMessage> options =
                 new FirebaseRecyclerOptions.Builder<ChatMessage>()
@@ -388,8 +331,8 @@ public class MainActivity extends AppCompatActivity {
         adapter = new FirebaseRecyclerAdapter<ChatMessage, ChatMessageViewHolder>(options) {
             @Override
             public ChatMessageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                // Create a new instance of the ViewHolder, in this case we are using a custom
-                // layout called R.layout.message for each item
+                //Create a new instance of the ViewHolder, in this case we are using a custom
+                //layout called R.layout.message for each item
                 View view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.item_message, parent, false);
 
@@ -398,8 +341,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             protected void onBindViewHolder(ChatMessageViewHolder holder, int position, ChatMessage message) {
-                // Bind the Chat object to the ChatHolder
-                // ...
+                //Bind the Chat object to the ChatHolder
+                //...
                 boolean isPhoto = message.getPhotoUrl() != null;
                 if (isPhoto) {
                     holder.messageTextView.setVisibility(View.GONE);
@@ -419,32 +362,27 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onDataChanged() {
-                // Called each time there is a new data snapshot. You may want to use this method
-                // to hide a loading spinner or check for the "no documents" state and update your UI.
-                // ...
+                //Called each time there is a new data snapshot. You may want to use this method
+                //to hide a loading spinner or check for the "no documents" state and update your UI.
+                //...
                 mMessagesRecyclerView.scrollToPosition(mMessagesRecyclerView.getAdapter().getItemCount() - 1);
             }
 
             @Override
             public void onError(DatabaseError e) {
-                // Called when there is an error getting data. You may want to update
-                // your UI to display an error message to the user.
-                // ...
+                //Called when there is an error getting data. You may want to update
+                //your UI to display an error message to the user.
+                //...
             }
         };
 
         mMessagesRecyclerView.setAdapter(adapter);
+
         if(adapter != null) {
             adapter.startListening();
         }
     }
 
-    private void detachDatabaseReadListener(){
-        if(mChildEventListener != null) {
-            mMessagesDatabaseReference.removeEventListener(mChildEventListener);
-            mChildEventListener = null;
-        }
-    }
 
     public void fetchConfig(){
         long cacheExpiration = 3600;

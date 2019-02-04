@@ -6,6 +6,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class ChatMessageViewHolder extends RecyclerView.ViewHolder {
+
     ImageView photoImageView;
     TextView messageTextView;
     TextView authorTextView;

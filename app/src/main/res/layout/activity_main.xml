@@ -19,19 +19,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <!--<ListView
-           android:id="@+id/messageListView"
-           android:layout_width="match_parent"
-           android:layout_height="match_parent"
-           android:layout_above="@+id/linearLayout"
-           android:layout_centerHorizontal="true"
-           android:layout_marginBottom="16dp"
-           android:divider="@android:color/transparent"
-           android:dividerHeight="10dp"
-           android:stackFromBottom="true"
-           android:transcriptMode="alwaysScroll"
-           tools:listitem="@layout/item_message" />-->
-
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
