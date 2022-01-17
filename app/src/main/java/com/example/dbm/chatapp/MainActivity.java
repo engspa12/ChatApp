@@ -2,12 +2,12 @@ package com.example.dbm.chatapp;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -71,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton mPhotoPickerButton;
     private EditText mMessageEditText;
     private Button mSendButton;
+    private LinearLayout mLinearLayoutChatMessage;
 
     private String mUsername;
 
@@ -108,6 +110,11 @@ public class MainActivity extends AppCompatActivity {
         mPhotoPickerButton = (ImageButton) findViewById(R.id.photoPickerButton);
         mMessageEditText = (EditText) findViewById(R.id.messageEditText);
         mSendButton = (Button) findViewById(R.id.sendButton);
+        mLinearLayoutChatMessage = findViewById(R.id.linear_layout_chat_message);
+
+        //Initialize progress bar
+        //mProgressBar.setVisibility(ProgressBar.INVISIBLE);
+        showProgressBar();
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mMessagesRecyclerView.setLayoutManager(layoutManager);
@@ -117,9 +124,6 @@ public class MainActivity extends AppCompatActivity {
         mDividerItemDecoration = new DividerItemDecoration(mMessagesRecyclerView.getContext(), layoutManager.getOrientation());
         mDividerItemDecoration.setDrawable(getResources().getDrawable(R.drawable.divider));
         mMessagesRecyclerView.addItemDecoration(mDividerItemDecoration);
-
-        //Initialize progress bar
-        mProgressBar.setVisibility(ProgressBar.INVISIBLE);
 
         //Show an image picker to upload an image so it can be used in the messages section
         mPhotoPickerButton.setOnClickListener(new View.OnClickListener() {
@@ -137,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
         mMessageEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
             }
 
             @Override
@@ -150,8 +155,10 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable editable) {
+
             }
         });
+
         mMessageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_MSG_LENGTH_LIMIT)});
 
         //Send a message using the send button and clear the EditText
@@ -161,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
                 // TODO: Send messages on click
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd - h:mm a");
                 String currentDateAndTime = sdf.format(new Date());
-                ChatMessage friendlyMessage = new ChatMessage(mMessageEditText.getText().toString(), mUsername, null, currentDateAndTime);
+                ChatMessage friendlyMessage = new ChatMessage(mMessageEditText.getText().toString().trim(), mUsername, null, currentDateAndTime);
                 mMessagesDatabaseReference.push().setValue(friendlyMessage);
                 //Clear input box
                 mMessageEditText.setText("");
@@ -175,6 +182,7 @@ public class MainActivity extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
+
                     onSignedInInitialize(user.getDisplayName());
                     //User is signed in
                     Toast.makeText(MainActivity.this, "You're now signed in. Welcome to the Chat App.", Toast.LENGTH_SHORT).show();
@@ -195,20 +203,19 @@ public class MainActivity extends AppCompatActivity {
                                     .build(),
                             RC_SIGN_IN);
                 }
-
             }
         };
 
         //Remote Config
         FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
-                .setDeveloperModeEnabled(BuildConfig.DEBUG)
+                .setMinimumFetchIntervalInSeconds(3600)
                 .build();
-        mFirebaseRemoteConfig.setConfigSettings(configSettings);
+        //mFirebaseRemoteConfig.setConfigSettings(configSettings);
 
         Map<String, Object> defaultConfigMap = new HashMap<>();
         defaultConfigMap.put(FRIENDLY_MSG_LENGTH_KEY, DEFAULT_MSG_LENGTH_LIMIT);
 
-        mFirebaseRemoteConfig.setDefaults(defaultConfigMap);
+        //mFirebaseRemoteConfig.setDefaults(defaultConfigMap);
         fetchConfig();
     }
 
@@ -218,7 +225,6 @@ public class MainActivity extends AppCompatActivity {
         if(requestCode == RC_SIGN_IN){
             if(resultCode == RESULT_OK){
                 Toast.makeText(this,"Signed in!",Toast.LENGTH_SHORT).show();
-
             } else if(resultCode == RESULT_CANCELED){
                 Toast.makeText(this,"Sign in canceled!",Toast.LENGTH_SHORT).show();
                 finish();
@@ -258,6 +264,18 @@ public class MainActivity extends AppCompatActivity {
             });
 
         }
+    }
+
+    private void showProgressBar(){
+        mProgressBar.setVisibility(View.VISIBLE);
+        mLinearLayoutChatMessage.setVisibility(View.GONE);
+        mMessagesRecyclerView.setVisibility(View.GONE);
+    }
+
+    private void hideProgressBar() {
+        mProgressBar.setVisibility(View.GONE);
+        mLinearLayoutChatMessage.setVisibility(View.VISIBLE);
+        mMessagesRecyclerView.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -313,7 +331,7 @@ public class MainActivity extends AppCompatActivity {
     private void onSignedInInitialize(String username){
         mUsername = username;
         setFirebaseUIConfig();
-
+        hideProgressBar();
     }
 
     private void onSignedOutCleanup(){
@@ -387,23 +405,28 @@ public class MainActivity extends AppCompatActivity {
     public void fetchConfig(){
         long cacheExpiration = 3600;
 
-        if(mFirebaseRemoteConfig.getInfo().getConfigSettings().isDeveloperModeEnabled()){
+        /*if(mFirebaseRemoteConfig.getInfo().getConfigSettings().isDeveloperModeEnabled()){
             cacheExpiration = 0;
+        }*/
+        if (BuildConfig.DEBUG) {
+            cacheExpiration = 0;
+        } else {
+            cacheExpiration = 43200L; // 12 hours same as the default value
         }
 
         mFirebaseRemoteConfig.fetch(cacheExpiration)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        mFirebaseRemoteConfig.activateFetched();
-                        applyRetrievedLengthLimit();
+                        //mFirebaseRemoteConfig.activateFetched();
+                        //applyRetrievedLengthLimit();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.w(TAG,"Error fetching config",e);
-                        applyRetrievedLengthLimit();
+                        //applyRetrievedLengthLimit();
                     }
                 });
 
