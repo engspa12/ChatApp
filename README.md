@@ -6,11 +6,12 @@
 
 </br>
 
-<img src="https://firebasestorage.googleapis.com/v0/b/inventoryapp-c8633.appspot.com/o/ChatApp%2F1.png?alt=media&token=1fc0d834-f411-45f2-ae52-00845fcbe596" width="420" height="692" style="margin:4px"> <img/><img src="https://firebasestorage.googleapis.com/v0/b/inventoryapp-c8633.appspot.com/o/ChatApp%2F2.png?alt=media&token=e89d95d4-1a41-4f46-9c42-2d5fd2b58c28" width="420" height="692" style="margin:4px">
-<img src="https://firebasestorage.googleapis.com/v0/b/inventoryapp-c8633.appspot.com/o/ChatApp%2F3.png?alt=media&token=54f04df2-b0f7-4026-a944-7cddc5df426c" width="420" height="692" style="margin:4px"> <img/><img
-src="https://firebasestorage.googleapis.com/v0/b/inventoryapp-c8633.appspot.com/o/ChatApp%2F4.png?alt=media&token=1935a6f0-c151-4733-a17a-e58f14e86bbe" width="420" height="692" style="margin:4px">
-<img src="https://firebasestorage.googleapis.com/v0/b/inventoryapp-c8633.appspot.com/o/ChatApp%2F5.png?alt=media&token=21cf6482-bb43-47b6-978c-06f3cf953d07" width="420" height="692" style="margin:4px"> <img/><img
-src="https://firebasestorage.googleapis.com/v0/b/inventoryapp-c8633.appspot.com/o/ChatApp%2F6.png?alt=media&token=44573169-28de-47fa-99a2-9b54b6c820e3" width="420" height="692" style="margin:4px">
+<img src="https://firebasestorage.googleapis.com/v0/b/inventoryapp-c8633.appspot.com/o/ChatApp%2F1.png?alt=media&token=1fc0d834-f411-45f2-ae52-00845fcbe596" width="375" height="725"><img height="725" hspace="20"/><img src="https://firebasestorage.googleapis.com/v0/b/inventoryapp-c8633.appspot.com/o/ChatApp%2F2.png?alt=media&token=e89d95d4-1a41-4f46-9c42-2d5fd2b58c28" width="375" height="725">
+<img width="770" vspace="20"/>
+<img src="https://firebasestorage.googleapis.com/v0/b/inventoryapp-c8633.appspot.com/o/ChatApp%2F3.png?alt=media&token=54f04df2-b0f7-4026-a944-7cddc5df426c" width="375" height="725"><img height="725" hspace="20"/><img src="https://firebasestorage.googleapis.com/v0/b/inventoryapp-c8633.appspot.com/o/ChatApp%2F4.png?alt=media&token=1935a6f0-c151-4733-a17a-e58f14e86bbe" width="375" height="725">
+<img width="770" vspace="20"/>
+<img src="https://firebasestorage.googleapis.com/v0/b/inventoryapp-c8633.appspot.com/o/ChatApp%2F5.png?alt=media&token=21cf6482-bb43-47b6-978c-06f3cf953d07" width="375" height="725"><img height="725" hspace="20"/><img src="https://firebasestorage.googleapis.com/v0/b/inventoryapp-c8633.appspot.com/o/ChatApp%2F6.png?alt=media&token=44573169-28de-47fa-99a2-9b54b6c820e3" width="375" height="725">
+<img width="770" vspace="20"/>
 
 ## Getting Started
 
@@ -116,14 +117,14 @@ function emojifyText(text) {
 
 ## Compatibility
 
-#### Minimum Android SDK: ChatApp requires a minimum API level of 15.
-#### Compile Android SDK: ChatApp requires you to compile against API 27 or later.
+#### Minimum Android SDK: ChatApp requires a minimum API level of 21.
+#### Compile Android SDK: ChatApp requires you to compile against API 32 or later.
 
 ## Getting Help
 
 #### To report a problem or request features, open a new issue on Github. For questions, suggestions, or anything else, email to:
 
-###### arturo_lpc@hotmail.com
+###### arturo.lpc12@gmail.com
 
 ## Author
 
